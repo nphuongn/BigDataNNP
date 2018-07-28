@@ -1,0 +1,20 @@
+val people = sc.textFile("/myInput/employee.txt").map(_.split(",")).map(e => Employee(e(0), e(1), e(2).trim.toInt)).toDF()
+
+val schema = StructType(Seq(StructField("fname", StringType, true), StructField("lname", StringType, true), StructField("deptId", IntegerType, true)))
+
+
+val people3 = sc.textFile("/myInput/employee.txt")
+
+val rowRDD2 = people3.map(_.split(",")).map(e =>Row(e(0), e(1), e(2).trim.toInt))
+
+val peopleDataFrame2 = sqlContext.createDataFrame(rowRDD2, schema)
+
+val emp = sqlContext.read.json(“/myInput/employee.json”) 
+
+peopleDataframe2.registerTempTable("employee") 
+
+
+sqoop export --connect jdbc:mysql://localhost:3306/retail_db --username retail_dba --password cloudera --table test --fields-terminated-by ',' --export-dir /data/hiveexercise/t2
+
+
+sqoop import --connect jdbc:mysql://localhost:3306/retail_db --username retail_dba --password cloudera --table test --m 1 --target-dir /data/hiveexercise/t9 
